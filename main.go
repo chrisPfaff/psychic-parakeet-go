@@ -10,9 +10,25 @@ func getTheId(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Psychic Parakeet id is " + id))
 }
 
+func getTheData(w http.ResponseWriter, r *http.Request) {
+	data := r.FormValue("data")
+	if data == "" {
+		http.Error(w, "No data provided", http.StatusBadRequest)
+		return
+	} else if data == "parakeet" {
+		http.Error(w, "Parakeet is not allowed", http.StatusBadRequest)
+		return
+	} else {
+		w.Write([]byte("Psychic Parakeet data is " + data))
+	}
+}
+
 func main() {
 	router := http.NewServeMux()
-	router.HandleFunc("/item/{id}", getTheId)
+	// Adding a method param to a route can be done by adding a space after the method name
+	// and then the route path
+	router.HandleFunc("GET /item/{id}", getTheId)
+	router.HandleFunc("POST /data/", getTheData)
 
 	server := http.Server{
 		Addr:    ":8080",
