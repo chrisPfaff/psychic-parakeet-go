@@ -5,11 +5,15 @@ import (
 	"net/http"
 )
 
+func getTheId(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	w.Write([]byte("Psychic Parakeet id is " + id))
+}
+
 func main() {
 	router := http.NewServeMux()
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Psychic Parakeet"))
-	})
+	router.HandleFunc("/item/{id}", getTheId)
+
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: router,
