@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"psychic-parakeet-go/init/middleware"
 )
 
 func getTheId(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +39,13 @@ func main() {
 	router.HandleFunc("psychicparakeet.com/", getTheHostName)
 
 	server := http.Server{
-		Addr:    ":8080",
-		Handler: router,
+		Addr: ":8080",
+		// The middleware.Logging function is called with the router as an argument
+		// this just logs the request method, but can be handled in any other way
+		// by changing the function in the middleware package
+		// examples of other middleware functions are in the middleware package
+		// cache, cors, and logging
+		Handler: middleware.Logging(router),
 	}
 	log.Println("Server started at :8080")
 	server.ListenAndServe()
