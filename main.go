@@ -12,16 +12,20 @@ func getTheId(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTheData(w http.ResponseWriter, r *http.Request) {
-	data := r.FormValue("data")
-	if data == "" {
-		http.Error(w, "No data provided", http.StatusBadRequest)
+
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
 		return
-	} else if data == "parakeet" {
-		http.Error(w, "Parakeet is not allowed", http.StatusBadRequest)
-		return
-	} else {
-		w.Write([]byte("Psychic Parakeet data is " + data))
 	}
+	name := r.Form.Get("name")
+	email := r.Form.Get("email")
+	message := r.Form.Get("message")
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(`{"status": "ok"}`))
+	log.Println("data", name, email, message)
 }
 
 func getTheHostName(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +44,6 @@ func main() {
 	// Create a middleware stack
 	stack := middleware.CreateStack(
 		middleware.Logging,
-		middleware.Cache,
 		middleware.Cors)
 
 	server := http.Server{
