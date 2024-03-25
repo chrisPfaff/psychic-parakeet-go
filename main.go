@@ -1,17 +1,47 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"psychic-parakeet-go/init/middleware"
+
+	"github.com/go-playground/validator/v10"
 )
+
+type User struct {
+	Name    string `validate:"required"`
+	Email   string `validate:"required,email"`
+	Message string `validate:"required,gte=5,lte=130"`
+}
 
 func getTheId(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	w.Write([]byte("Psychic Parakeet id is " + id))
 }
 
+// func getTheData(w http.ResponseWriter, r *http.Request) {
+
+// 	err := r.ParseForm()
+// 	if err != nil {
+// 		http.Error(w, "Error parsing form", http.StatusBadRequest)
+// 		return
+// 	}
+// 	name := r.Form.Get("name")
+// 	email := r.Form.Get("email")
+// 	message := r.Form.Get("message")
+// 	validate = validator.New(validator.WithRequiredStructEnabled())
+
+// 	validateStruct()
+// 	validateVariable()
+// 	w.WriteHeader(http.StatusOK)
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.Write([]byte(`{"status": "ok"}`))
+// 	log.Println("data", name, email, message)
+// }
+
 func getTheData(w http.ResponseWriter, r *http.Request) {
+	var validate *validator.Validate
 
 	err := r.ParseForm()
 	if err != nil {
@@ -21,7 +51,24 @@ func getTheData(w http.ResponseWriter, r *http.Request) {
 	name := r.Form.Get("name")
 	email := r.Form.Get("email")
 	message := r.Form.Get("message")
+	validate = validator.New(validator.WithRequiredStructEnabled())
 
+	user := &User{
+		Name:    name,
+		Email:   email,
+		Message: message,
+	}
+
+	err = validate.Struct(user)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			// Handle validation errors
+			fmt.Println(err)
+		}
+		return
+	}
+
+	// Validation passed
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(`{"status": "ok"}`))
